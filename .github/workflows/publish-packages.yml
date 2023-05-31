@@ -21,9 +21,9 @@ jobs:
           ref: main
       - uses: pnpm/action-setup@v2.2.2
         with:
-          version: 6.32.10
+          version: 7
           run_install: |
-            args: [--frozen-lockfile]
+            args: [--no-frozen-lockfile]
       # The following step creates a .npmrc file on the runner with following contents:
       # //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
       # registry=https://npm.pkg.github.com/
