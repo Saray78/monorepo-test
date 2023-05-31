@@ -34,6 +34,6 @@ jobs:
           node-version: 16
           registry-url: 'https://npm.pkg.github.com'
           cache: 'pnpm'
-      - run: pnpm -r publish
+      - run: pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{secrets.TOKEN}}
