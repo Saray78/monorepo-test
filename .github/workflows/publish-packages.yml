@@ -3,8 +3,9 @@
 
 name: Node.js Package
 
-main:
-  yml:
+on:
+  - push
+  - pull_request
 
 jobs:
   publish-gpr:
