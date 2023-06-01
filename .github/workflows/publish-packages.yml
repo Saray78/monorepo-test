@@ -41,19 +41,19 @@ jobs:
         run: pnpm install
 
       - name: Build project
-        run: pnpm run build --filter shared/ui
+        run: pnpm run build --filter shared
 
-      - name: Check for changes in shared/ui
+      - name: Check for changes in shared
         id: check_changes
         run: |
-          CHANGED_FILES=$(git diff --name-only --diff-filter=d origin/main...${{ github.sha }} -- shared/ui)
+          CHANGED_FILES=$(git diff --name-only --diff-filter=d origin/main...${{ github.sha }} -- shared)
           echo "::set-output name=changed_files::${CHANGED_FILES}"
 
       - name: Bump UI library version
         if: ${{ steps.check_changes.outputs.changed_files != '' }}
         id: bump_version
         run: |
-          cd shared/ui
+          cd shared
 
           # Obtener la versión actual
           CURRENT_VERSION=$(node -p "require('./package.json').version")
@@ -68,7 +68,7 @@ jobs:
           cd ../..
 
           # Actualizar el archivo package.json del monorepo con la nueva versión
-          sed -i "s/\"shared\/ui\": \"^$CURRENT_VERSION\"/\"shared\/ui\": \"^$NEW_VERSION\"/" package.json
+          sed -i "s/\"shared\/ui\": \"^$CURRENT_VERSION\"/\"shared\": \"^$NEW_VERSION\"/" package.json
 
       - name: Push changes
         uses: stefanzweifel/git-auto-commit-action@v4
