@@ -3,9 +3,6 @@
   "version": "2.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "build": "pnpm run build --filter @pnpm-monorepo/shared"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC"
