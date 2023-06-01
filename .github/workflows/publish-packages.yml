@@ -1,39 +1,50 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
-
-name: Node.js Package
-
-on:
-  - push
-  - pull_request
-
 jobs:
-  publish-gpr:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+
     steps:
-      - name: checkout code repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: main
-      - uses: pnpm/action-setup@v2.2.2
-        with:
-          version: 7
-          run_install: |
-            args: [--no-frozen-lockfile]
-      # The following step creates a .npmrc file on the runner with following contents:
-      # //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
-      # registry=https://npm.pkg.github.com/
-      # always-auth=true
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses:  actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
           node-version: 16
-          registry-url: 'https://npm.pkg.github.com'
-          cache: 'pnpm'
-      - run: pnpm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.TOKEN}}
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Check for changes in shared/ui
+        id: check_changes
+        run: |
+          CHANGED_FILES=$(git diff --name-only --diff-filter=d origin/main...${{ github.sha }} -- shared/ui)
+          echo "::set-output name=changed_files::${CHANGED_FILES}"
+
+      - name: Bump UI library version
+        if: ${{ steps.check_changes.outputs.changed_files != '' }}
+        id: bump_version
+        run: |
+          cd shared/ui
+
+          # Obtener la versión actual
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Versión actual: $CURRENT_VERSION"
+
+          # Incrementar la versión
+          npm version patch --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "Nueva versión: $NEW_VERSION"
+
+          # Volver al directorio raíz del monorepo
+          cd ../..
+
+          # Actualizar el archivo package.json del monorepo con la nueva versión
+          sed -i "s/\"shared\/ui\": \"^$CURRENT_VERSION\"/\"shared\/ui\": \"^$NEW_VERSION\"/" package.json
+
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Bump version to ${{ steps.version.outputs.new_version }}"
+
