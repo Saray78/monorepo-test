@@ -42,7 +42,6 @@ jobs:
 
       - name: Build project
         run: pnpm --filter vite-project run build
-        working-directory: vite-project
 
       - name: Check for changes in shared
         id: check_changes
