@@ -41,7 +41,7 @@ jobs:
         run: pnpm install
 
       - name: Build project
-        run: pnpm run build
+        run: pnpm run build --filter shared/ui
 
       - name: Check for changes in shared/ui
         id: check_changes
