@@ -60,7 +60,7 @@ jobs:
           echo "Versión actual: $CURRENT_VERSION"
 
           # Incrementar la versión
-          npm version patch --no-git-tag-version
+          pnpm version patch --no-git-tag-version
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "Nueva versión: $NEW_VERSION"
 
@@ -69,9 +69,3 @@ jobs:
 
           # Actualizar el archivo package.json del monorepo con la nueva versión
           sed -i "s/\"shared\/ui\": \"^$CURRENT_VERSION\"/\"shared\": \"^$NEW_VERSION\"/" package.json
-
-      - name: Push changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "Bump version to ${{ steps.version.outputs.new_version }}"
-
